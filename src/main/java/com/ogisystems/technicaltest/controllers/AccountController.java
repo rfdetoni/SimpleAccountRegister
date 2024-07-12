@@ -28,6 +28,6 @@ public class AccountController {
 
     @GetMapping()
     public ResponseEntity<AccountInfoDTO> getAccount(@PathParam("numero_conta") Long accountNumber) {
-        return ResponseEntity.ok( accountService.getAccount( accountNumber ) );
+        return ResponseEntity.ok( accountService.getAccountInfoDTO( accountNumber ) );
     }
 }

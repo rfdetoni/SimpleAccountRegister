@@ -1,20 +1,21 @@
 package com.ogisystems.technicaltest.validations.transaction;
 
-import com.ogisystems.technicaltest.dtos.account.AccountInfoDTO;
 import com.ogisystems.technicaltest.dtos.transaction.TransactionRequestDTO;
-import com.ogisystems.technicaltest.validations.account.AccountNotExistsValidation;
+import com.ogisystems.technicaltest.exceptions.Errors;
+import com.ogisystems.technicaltest.exceptions.NotFoundException;
+import com.ogisystems.technicaltest.repositories.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 public class TransactionAccountNumberValidation implements TransactionValidator {
-    private final AccountNotExistsValidation accountNotExistsValidation;
+    private final AccountRepository accountRepository;
 
     @Override
     public void validate(TransactionRequestDTO transaction) {
-        accountNotExistsValidation.validate( AccountInfoDTO.builder()
-                .accountNumber( transaction.accountNumber() )
-                .build() );
+        if( !accountRepository.existsByAccountNumber( transaction.accountNumber() ) ){
+            throw new NotFoundException(Errors.NOT_FOUND );
+        }
     }
 }

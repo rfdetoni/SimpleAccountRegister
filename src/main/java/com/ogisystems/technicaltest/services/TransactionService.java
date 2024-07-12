@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 @Service
@@ -29,12 +30,16 @@ public class TransactionService {
 
     @Transactional
     public AccountInfoDTO createTransaction(TransactionRequestDTO transactionRequestDTO) {
-        transactionValidators.forEach( transactionValidator -> transactionValidator.validate( transactionRequestDTO ) );
+        validateTransaction(transactionRequestDTO);
 
         var account = accountService.getAccountByAccountNumber( transactionRequestDTO.accountNumber() );
 
         var transaction = createAndValidateTransaction( transactionRequestDTO, account );
         return subtractFromAccountBalance(account, transaction.getAmount() );
+    }
+
+    protected void validateTransaction(TransactionRequestDTO transactionRequestDTO) {
+        transactionValidators.forEach( transactionValidator -> transactionValidator.validate( transactionRequestDTO ) );
     }
 
     @Transactional
@@ -48,6 +53,10 @@ public class TransactionService {
         transaction.setAccount(account);
         transaction.setAmount(totalTransactionValue);
 
+        return save(transaction);
+    }
+
+    protected Transaction save(Transaction transaction) {
         return transactionRepository.save(transaction);
     }
 
@@ -55,11 +64,11 @@ public class TransactionService {
         return accountService.subtractFromAccountBalance(account, totalTransactionValue);
     }
 
-    private BigDecimal calculateTransactionAmount(TransactionRequestDTO transactionRequestDTO) {
+    protected BigDecimal calculateTransactionAmount(TransactionRequestDTO transactionRequestDTO) {
         var transactionAmount = transactionRequestDTO.value();
 
         var transactionCost = transactionAmount.multiply( transactionRequestDTO.transactionType().getPercentage() );
 
-        return transactionAmount.add( transactionCost );
+        return transactionAmount.add( transactionCost ).setScale(2, RoundingMode.HALF_UP);
     }
 }

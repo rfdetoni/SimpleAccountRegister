@@ -25,16 +25,18 @@ public class AccountService {
 
     @Transactional
     public AccountInfoDTO createAccount(AccountInfoDTO account) {
-        accountValidator.forEach( validator -> validator.validate( account ) );
+        validateAccount( account );
         var accountEntity = account.toEntity();
         var newAccount = save(accountEntity);
         return new AccountInfoDTO( newAccount );
     }
 
-    public AccountInfoDTO getAccount(Long accountNumber) {
-        var account = accountRepository.findByAccountNumber(accountNumber)
-                .orElseThrow( () -> new NotFoundException( Errors.NOT_FOUND ) );
+    protected void validateAccount(AccountInfoDTO account) {
+        accountValidator.forEach( validator -> validator.validate( account ) );
+    }
 
+    public AccountInfoDTO getAccountInfoDTO( Long accountNumber ) {
+        var account = getAccountByAccountNumber( accountNumber );
         return new AccountInfoDTO( account );
     }
 
@@ -43,6 +45,7 @@ public class AccountService {
                 .orElseThrow( () -> new NotFoundException( Errors.NOT_FOUND ) );
     }
 
+    @Transactional
     public AccountInfoDTO subtractFromAccountBalance(Account account, BigDecimal totalTransactionValue) {
         var newBalance = account.getBalance().subtract( totalTransactionValue );
         account.setBalance( newBalance );
