@@ -5,9 +5,10 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @NoArgsConstructor
 @ResponseStatus(HttpStatus.NOT_FOUND)
-public class NotFoundException extends RuntimeException {
+public class NewTransactionException extends RuntimeException {
 
-    public NotFoundException(Errors error) {
+    public NewTransactionException(Errors error) {
         super( error.getMessage() );
     }
+
 }

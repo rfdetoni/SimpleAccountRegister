@@ -1,5 +1,9 @@
 package com.ogisystems.technicaltest.configurations.handlers;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.ogisystems.technicaltest.exceptions.InsufficientFundsException;
+import com.ogisystems.technicaltest.exceptions.NewAccountException;
+import com.ogisystems.technicaltest.exceptions.NewTransactionException;
 import com.ogisystems.technicaltest.exceptions.NotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpHeaders;
@@ -25,8 +29,36 @@ public class ExceptionHandlers extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = { NoSuchElementException.class, NotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     protected ResponseEntity<Object> handleNotFound(RuntimeException ex, WebRequest request) {
-        String bodyOfResponse = "Resource not found";
+        String bodyOfResponse = "Not found";
         return handleExceptionInternal(ex, bodyOfResponse, new HttpHeaders(), HttpStatus.NOT_FOUND, request);
+    }
+
+    @ExceptionHandler(value = { InsufficientFundsException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    protected ResponseEntity<Object> handleInsuficientFunnds(InsufficientFundsException ex, WebRequest request) {
+        String bodyOfResponse = ex.getMessage();
+        return handleExceptionInternal(ex, bodyOfResponse, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler(value = { NewAccountException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    protected ResponseEntity<Object> handleNewAccountException(NewAccountException ex, WebRequest request) {
+        String bodyOfResponse = ex.getMessage();
+        return handleExceptionInternal(ex, bodyOfResponse, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler(value = { NewTransactionException.class })
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    protected ResponseEntity<Object> handleNewTransactionException(NewTransactionException ex, WebRequest request) {
+        String bodyOfResponse = ex.getMessage();
+        return handleExceptionInternal(ex, bodyOfResponse, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler(value = { JsonMappingException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    protected ResponseEntity<Object> handleNewAccountException(JsonMappingException ex, WebRequest request) {
+        String bodyOfResponse = "Invalid transaction type";
+        return handleExceptionInternal(ex, bodyOfResponse, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
 
     @ExceptionHandler(value = { AccessDeniedException.class })
